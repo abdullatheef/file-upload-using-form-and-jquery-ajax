@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<h1>My test app</h1>
+<form action="/" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	<input type="file" name="img1", id="img1" />
+	<p><input type="submit" name="upload1" id="upload1" value="form upload" />
+</form>
+
+<div id="image">
+{% if not imgurl %}
+	<p> No image is uploaded
+{% else %}
+	{% if "image" in type %}
+		<img src="{{MEDIA_URL}}testapp/{{imgurl}}" alt="{{imgurl}}" height="400" width="400" />
+	{% endif %}
+	{% if "pdf" in type %}	
+		<embed src="{{MEDIA_URL}}testapp/{{imgurl}}" alt="{{imgurl}}" height="400" width="400" />
+	{% endif %}
+{% endif %}
+</div>
+<p>
+<input type="file" name="img2", id="img2" />
+<p><input type="button" name="upload2" id="upload2" value="jquery upload" onclick="sendFile()" />
+</body>
+<script>
+   var client = new XMLHttpRequest();
+   var file = document.getElementById("img2")  
+   function sendFile() 
+   {
+      var file = document.getElementById("img2");
+     
+      /* Create a FormData instance */
+      var formData = new FormData();
+      /* Add the file */ 
+      formData.append("img2", file.files[0]);
+
+      client.open("post", "/", true);
+      client.send(formData);  /* Send to server */ 
+   }
+     
+   /* Check the response status */  
+   client.onreadystatechange = function() 
+   {
+      if (client.readyState == 4 && client.status == 200) 
+      {	 
+      	 result = JSON.parse(client.response)
+      	 if (result.file_type.search("image") != -1 ){
+      	 	$('#image').html("<img src='"+ result.response +"' alt='' height='400' width='400' />")
+      	 }
+      	 if (result.file_type.search("pdf") != -1 ){
+      	 	$('#image').html("<embed src='"+ result.response +"' alt='' height='400' width='400' />")
+      	 }      	 	
+         
+      }
+   }
+</script>
+</html>
